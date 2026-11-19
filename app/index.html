@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neon Sunset Cover Studio — make your own poster cover</title>
+<meta name="description" content="Turn your photos and a caption into a multi-panel poster cover with a sunset or neon colour grade. Runs offline in your browser; your photos never leave your machine.">
+<style>
+@font-face {
+  font-family: 'Anton';
+  src: url('fonts/Anton-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Bebas Neue';
+  src: url('fonts/BebasNeue-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+</style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">☀</span>
+      <div>
+        <h1>Neon Sunset Cover Studio</h1>
+        <p>Your photos + a caption → poster cover art. Offline, free, no upload.</p>
+      </div>
+    </div>
+    <button id="exportBtn" type="button" class="export-btn">Export PNG ↓</button>
+  </header>
+
+  <main class="workspace">
+    <aside class="panel sidebar" aria-label="Cover controls">
+      <section>
+        <h2>1 · Photos</h2>
+        <p class="hint">Add your own photos, then click a thumbnail to place it in the selected panel — or drag a file onto the preview.</p>
+        <div id="photoStrip" class="photo-strip"></div>
+        <div class="row">
+          <button id="addPhotosBtn" type="button" class="btn">+ Add photos</button>
+          <button id="fillAllBtn" type="button" class="btn ghost">Fill all panels</button>
+        </div>
+        <input id="fileInput" type="file" accept="image/*" multiple hidden>
+      </section>
+
+      <section>
+        <h2>2 · Layout</h2>
+        <div class="btn-grid" role="group" aria-label="Panel layout">
+          <button type="button" class="btn layout-btn" data-layout="quad">Neon Quad</button>
+          <button type="button" class="btn layout-btn" data-layout="strip">Sunset Strip</button>
+          <button type="button" class="btn layout-btn" data-layout="comic">Comic Five</button>
+          <button type="button" class="btn layout-btn" data-layout="hero">Full Bleed</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>3 · Colour grade</h2>
+        <div class="btn-grid" role="group" aria-label="Colour grade">
+          <button type="button" class="btn grade-btn" data-grade="sunset">Sunset</button>
+          <button type="button" class="btn grade-btn" data-grade="neon">Neon</button>
+          <button type="button" class="btn grade-btn" data-grade="vice">Vice</button>
+          <button type="button" class="btn grade-btn" data-grade="noir">Noir</button>
+        </div>
+        <label class="slider-label">Grade strength <span id="gradeAmountVal">90%</span>
+          <input id="gradeAmount" type="range" min="0" max="1" step="0.05" value="0.9">
+        </label>
+        <div class="toggles">
+          <label><input id="sunToggle" type="checkbox" checked> Setting sun</label>
+          <label><input id="skylineToggle" type="checkbox" checked> Skyline + palms</label>
+          <label><input id="grainToggle" type="checkbox" checked> Film grain</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>4 · Caption</h2>
+        <label class="field-label">Title
+          <input id="titleInput" type="text" value="SUNSET HEIST" maxlength="24" autocomplete="off">
+        </label>
+        <label class="field-label">Tagline
+          <input id="subtitleInput" type="text" value="NEON BAY  •  EST. 2026" maxlength="40" autocomplete="off">
+        </label>
+        <label class="slider-label">Title size <span id="titleScaleVal">100%</span>
+          <input id="titleScale" type="range" min="0.6" max="1.4" step="0.05" value="1">
+        </label>
+        <div class="swatches" role="group" aria-label="Title colour">
+          <button type="button" class="color-swatch" data-color="#ffffff" style="background:#ffffff" aria-label="White title"></button>
+          <button type="button" class="color-swatch" data-color="#ffd65a" style="background:#ffd65a" aria-label="Gold title"></button>
+          <button type="button" class="color-swatch" data-color="#ff5e78" style="background:#ff5e78" aria-label="Pink title"></button>
+          <button type="button" class="color-swatch" data-color="#7df9ff" style="background:#7df9ff" aria-label="Cyan title"></button>
+        </div>
+      </section>
+
+      <section>
+        <h2>5 · Size &amp; export</h2>
+        <div class="btn-grid" role="group" aria-label="Export size">
+          <button type="button" class="btn size-btn" data-size="square">1080 × 1080</button>
+          <button type="button" class="btn size-btn" data-size="portrait">1080 × 1350</button>
+          <button type="button" class="btn size-btn" data-size="wide">1920 × 1080</button>
+        </div>
+        <p class="hint">One click exports a full-resolution PNG at the size above — square for the feed, portrait for stories, wide for banners.</p>
+        <button id="shuffleBtn" type="button" class="btn ghost wide">↻ Shuffle layout &amp; grade</button>
+      </section>
+
+      <section id="panelControls" class="panel-box" hidden>
+        <h2 id="panelLabel">Panel 1</h2>
+        <label class="field-label">Photo in this panel
+          <select id="panelPhotoSelect"></select>
+        </label>
+        <label class="slider-label">Zoom <span id="panelZoomVal">100%</span>
+          <input id="panelZoom" type="range" min="0.6" max="3" step="0.05" value="1">
+        </label>
+        <label class="slider-label">Move left / right
+          <input id="panelX" type="range" min="-0.6" max="0.6" step="0.02" value="0">
+        </label>
+        <label class="slider-label">Move up / down
+          <input id="panelY" type="range" min="-0.6" max="0.6" step="0.02" value="0">
+        </label>
+        <button id="flipBtn" type="button" class="btn ghost">Flip photo</button>
+        <p class="hint">Tip: drag the photo inside the preview to move it, scroll over it to zoom.</p>
+      </section>
+    </aside>
+
+    <section class="stage" aria-label="Live preview">
+      <canvas id="previewCanvas" width="1080" height="1080"></canvas>
+      <p id="statusLine" class="status" role="status">Loading sample photos…</p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>All artwork on the cover is drawn by this app in your browser. The two sample photos were made with an image model for make.fun and are free to use. Fonts: Anton and Bebas Neue (SIL Open Font License, see fonts/OFL.txt).</p>
+  </footer>
+</div>
+<script type="module" src="src/shots.js"></script>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
